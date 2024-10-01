@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package ventanas;
+import java.awt.HeadlessException;
 import java.sql.*;
 import javax.swing.JOptionPane;
 
@@ -61,8 +62,18 @@ public class RegistroAlumnos extends javax.swing.JFrame {
         });
 
         jButton2.setText("Modificar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Eliminar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Ingresa el nombre del alumno");
 
@@ -164,10 +175,10 @@ public class RegistroAlumnos extends javax.swing.JFrame {
           status.setText("Registro exitoso");
 
           
-      }catch(Exception e){
+      }catch(SQLException e){
           
       }
-      
+            
       
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -188,15 +199,33 @@ public class RegistroAlumnos extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Alumno no registrado.");
             }
             
-        }catch (Exception e){ 
-            
-            
-             e.printStackTrace(); // Imprime el error en la consola
-    JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-            
-            
+        }catch (HeadlessException | SQLException e){ // Imprime el error en la consola
+            // Imprime el error en la consola
+             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());    
         }
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try{
+            String id= txt_buscar.getText().trim();
+            Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+            PreparedStatement pst = cn.prepareStatement("update estudiante set NombreEstudiante =?, set Grado=? where ID= " + id);
+            
+            pst.setString(1,txt_nombre.getText().trim());
+            pst.setString(1,txt_grado.getText().trim());
+            pst.executeUpdate();
+            
+            status.setText("Modificacion exitosa");
+            
+        }catch(SQLException e){ // Imprime el error en la consola
+            // Imprime el error en la consola
+             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage()); 
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
