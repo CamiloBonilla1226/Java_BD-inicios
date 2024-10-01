@@ -101,12 +101,12 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Nombre"/>
+        <Property name="text" type="java.lang.String" value="Nombre:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Grado"/>
+        <Property name="text" type="java.lang.String" value="Grado:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txt_nombre">
@@ -142,7 +142,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Ingresa el nombre del alumno"/>
+        <Property name="text" type="java.lang.String" value="Ingrese el ID del usuario:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txt_buscar">

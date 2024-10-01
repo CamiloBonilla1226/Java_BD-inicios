@@ -44,9 +44,9 @@ public class RegistroAlumnos extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Nombre");
+        jLabel1.setText("Nombre:");
 
-        jLabel2.setText("Grado");
+        jLabel2.setText("Grado:");
 
         txt_nombre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -75,7 +75,7 @@ public class RegistroAlumnos extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setText("Ingresa el nombre del alumno");
+        jLabel3.setText("Ingrese el ID del usuario:");
 
         jButton4.setText("Buscar");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -156,14 +156,25 @@ public class RegistroAlumnos extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
       try{
-          Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+          
+          String nombre = txt_nombre.getText().trim();
+          String grado = txt_grado.getText().trim();
+
+            if(nombre.isEmpty() || grado.isEmpty()) {
+
+                 JOptionPane.showMessageDialog(null, "Por favor, completa todos los campos antes de registrar.");
+                
+            }else {
+                Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
           //Ruta de la bd, nombre de la bd, constraseña bd, si no tiene se pone root
           PreparedStatement pst = cn.prepareStatement("insert into estudiante values(?,?,?)"); //nombre, grado, pero tambien tiene ID
           pst.setString(1, "0"); 
             //el primer campo hace referencia a la columna de la tabla, en este caso el ID es el #1
             //Sirve para referenciar el ID si no envia error
             
-          pst.setString(2,txt_nombre.getText().trim());
+      
+             pst.setString(2,txt_nombre.getText().trim());
+         
             //trim quita espacios de la cadena de caracteres, por algun error del usuario, controla eso
           pst.setString(3,txt_grado.getText().trim());
           pst.executeUpdate();
@@ -173,10 +184,18 @@ public class RegistroAlumnos extends javax.swing.JFrame {
           txt_grado.setText("");
           
           status.setText("Registro exitoso");
-
-          
+           javax.swing.Timer timer = new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                status.setText(""); // Limpiar el mensaje de estado
+            }
+        });
+        timer.setRepeats(false); // Asegurarse de que solo se ejecute una vez
+        timer.start(); // Iniciar el temporizador
+            }
+            
       }catch(SQLException e){
-          
+          JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());  
       }
             
       
@@ -186,11 +205,19 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         
         try{
-            Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
-            PreparedStatement pst = cn.prepareStatement("select * from estudiante where ID = ?");
-            pst.setString(1, txt_buscar.getText().trim());
+            String buscar = txt_buscar.getText().trim();
+           
+
+            if(buscar.isEmpty()) {
+
+                 JOptionPane.showMessageDialog(null, "Por favor, ingrese el id del usuario que desea buscar.");
+                
+            }else {
+                Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+                PreparedStatement pst = cn.prepareStatement("select * from estudiante where ID = ?");
+                pst.setString(1, txt_buscar.getText().trim());
             
-            ResultSet rs = pst.executeQuery();
+                ResultSet rs = pst.executeQuery();
             
             if(rs.next()){
                 txt_nombre.setText(rs.getString("NombreEstudiante"));
@@ -198,6 +225,9 @@ public class RegistroAlumnos extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(null, "Alumno no registrado.");
             }
+            }
+            
+            
             
         }catch (HeadlessException | SQLException e){ // Imprime el error en la consola
             // Imprime el error en la consola
@@ -208,17 +238,33 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try{
             String id= txt_buscar.getText().trim();
+            
+            if(id.isEmpty()){
+                JOptionPane.showMessageDialog(null, "Por favor, ingrese el id del usuario que desea actualizar.");
+                return;
+            }
+            
             Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
             PreparedStatement pst = cn.prepareStatement("update estudiante set NombreEstudiante = ?, Grado = ? where ID= " + id);
+            
+          
             
             pst.setString(1,txt_nombre.getText().trim());
             pst.setString(2,txt_grado.getText().trim());
             pst.executeUpdate();
             
             status.setText("Modificacion exitosa");
+            javax.swing.Timer timer = new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                status.setText(""); // Limpiar el mensaje de estado
+            }
+        });
+        timer.setRepeats(false); // Asegurarse de que solo se ejecute una vez
+        timer.start(); // Iniciar el temporizador
             
             txt_nombre.setText("");
-             txt_grado.setText("");
+            txt_grado.setText("");
             
         }catch(SQLException e){ // Imprime el error en la consola
             // Imprime el error en la consola
@@ -229,12 +275,25 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try{
             String id= txt_buscar.getText().trim();
+            
+            if(id.isEmpty()){
+                JOptionPane.showMessageDialog(null, "Por favor, ingrese el id del usuario que desea eliminar.");
+                return;
+            }
             Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
             PreparedStatement pst = cn.prepareStatement("delete from estudiante where ID = " + id);
    
             pst.executeUpdate();
             
             status.setText("Eliminacion exitosa");
+            javax.swing.Timer timer = new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                status.setText(""); // Limpiar el mensaje de estado
+            }
+        });
+        timer.setRepeats(false); // Asegurarse de que solo se ejecute una vez
+        timer.start(); // Iniciar el temporizador
             
             txt_nombre.setText("");
             txt_grado.setText("");
