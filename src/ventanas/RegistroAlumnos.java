@@ -227,7 +227,22 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        try{
+            String id= txt_buscar.getText().trim();
+            Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+            PreparedStatement pst = cn.prepareStatement("delete from estudiante where ID = " + id);
+   
+            pst.executeUpdate();
+            
+            status.setText("Eliminacion exitosa");
+            
+            txt_nombre.setText("");
+            txt_grado.setText("");
+            
+        }catch(SQLException e){ // Imprime el error en la consola
+            // Imprime el error en la consola
+             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage()); 
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
