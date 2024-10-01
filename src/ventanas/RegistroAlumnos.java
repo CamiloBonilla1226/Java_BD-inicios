@@ -209,13 +209,16 @@ public class RegistroAlumnos extends javax.swing.JFrame {
         try{
             String id= txt_buscar.getText().trim();
             Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
-            PreparedStatement pst = cn.prepareStatement("update estudiante set NombreEstudiante =?, set Grado=? where ID= " + id);
+            PreparedStatement pst = cn.prepareStatement("update estudiante set NombreEstudiante = ?, Grado = ? where ID= " + id);
             
             pst.setString(1,txt_nombre.getText().trim());
-            pst.setString(1,txt_grado.getText().trim());
+            pst.setString(2,txt_grado.getText().trim());
             pst.executeUpdate();
             
             status.setText("Modificacion exitosa");
+            
+            txt_nombre.setText("");
+             txt_grado.setText("");
             
         }catch(SQLException e){ // Imprime el error en la consola
             // Imprime el error en la consola
