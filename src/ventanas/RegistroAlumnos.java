@@ -6,7 +6,12 @@ package ventanas;
 import java.awt.HeadlessException;
 import java.sql.*;
 import javax.swing.JOptionPane;
-
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 /**
  *
  * @author PINKILORA
@@ -41,6 +46,7 @@ public class RegistroAlumnos extends javax.swing.JFrame {
         txt_buscar = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
         status = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -86,6 +92,13 @@ public class RegistroAlumnos extends javax.swing.JFrame {
 
         status.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
+        jButton5.setText("Generar PDF");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -98,18 +111,20 @@ public class RegistroAlumnos extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
                             .addComponent(jButton1))
-                        .addGap(37, 37, 37)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(37, 37, 37)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txt_nombre)
-                                    .addComponent(txt_grado, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE))
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(txt_grado, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)))
                             .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
                                 .addComponent(jButton2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addComponent(jButton3)
-                                .addGap(65, 65, 65))))
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton5)))
+                        .addContainerGap(15, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -136,7 +151,8 @@ public class RegistroAlumnos extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(jButton3)
+                    .addComponent(jButton5))
                 .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -273,20 +289,37 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try{
-            String id= txt_buscar.getText().trim();
-            
-            if(id.isEmpty()){
-                JOptionPane.showMessageDialog(null, "Por favor, ingrese el id del usuario que desea eliminar.");
-                return;
-            }
-            Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
-            PreparedStatement pst = cn.prepareStatement("delete from estudiante where ID = " + id);
-   
-            pst.executeUpdate();
-            
-            status.setText("Eliminacion exitosa");
-            javax.swing.Timer timer = new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
+         try {
+        String id = txt_buscar.getText().trim();
+        
+        // Verificar si el campo de ID está vacío
+        if(id.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Por favor, ingrese el id del usuario que desea eliminar.");
+            return;
+        }
+        
+        // Establecer la conexión con la base de datos
+        Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+        
+        // Usar PreparedStatement para evitar concatenar el ID directamente
+        PreparedStatement pst = cn.prepareStatement("DELETE FROM estudiante WHERE ID = ?");
+        
+        // Establecer el parámetro del ID
+        pst.setString(1, id);
+        
+        // Ejecutar la consulta de eliminación
+        int rowsAffected = pst.executeUpdate();
+
+        if (rowsAffected > 0) {
+            // Si se eliminó el registro, mostrar mensaje de éxito
+            status.setText("Eliminación exitosa");
+        } else {
+            // Si no se encontró el registro, mostrar mensaje de advertencia
+            JOptionPane.showMessageDialog(null, "ID no encontrado. No se pudo eliminar.");
+        }
+
+        // Limpiar el mensaje de éxito después de 2 segundos
+        javax.swing.Timer timer = new javax.swing.Timer(2000, new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 status.setText(""); // Limpiar el mensaje de estado
@@ -294,15 +327,58 @@ public class RegistroAlumnos extends javax.swing.JFrame {
         });
         timer.setRepeats(false); // Asegurarse de que solo se ejecute una vez
         timer.start(); // Iniciar el temporizador
-            
-            txt_nombre.setText("");
-            txt_grado.setText("");
-            
-        }catch(SQLException e){ // Imprime el error en la consola
-            // Imprime el error en la consola
-             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage()); 
-        }
+        
+        // Limpiar los campos de texto
+        txt_nombre.setText("");
+        txt_grado.setText("");
+        
+    } catch(SQLException e) {
+        // Mostrar mensaje de error si ocurre algún problema con la base de datos
+        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage()); 
+    }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        Document documento = new Document();
+        try{
+            String ruta = System.getProperty("user.home");
+            PdfWriter.getInstance(documento, new FileOutputStream(ruta + "/Desktop/Reporte_Estudiante.pdf"));
+            documento.open();
+            
+            PdfPTable tabla = new PdfPTable(3);
+            tabla.addCell("Código");
+            tabla.addCell("Nombre Estudiante");
+            tabla.addCell("Grado");
+            
+            try{
+                
+                Connection cn = DriverManager.getConnection("jdbc:mysql://localhost/bd_institucion","root","");
+                PreparedStatement pst = cn.prepareStatement("select * from estudiante");
+                
+                ResultSet rs = pst.executeQuery();
+                if(rs.next()){
+                    
+                    do {
+                        tabla.addCell(rs.getString(1));
+                        tabla.addCell(rs.getString(2));
+                        tabla.addCell(rs.getString(3));
+                    }while(rs.next());
+                    documento.add(tabla);
+                }
+
+                
+            }catch(DocumentException | SQLException e){
+                
+            }
+            
+            documento.close();
+            JOptionPane.showMessageDialog(null, "Resporte creado"); 
+            
+        }catch(  DocumentException | HeadlessException | FileNotFoundException e){
+        
+    }
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -344,6 +420,7 @@ public class RegistroAlumnos extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
